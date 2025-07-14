@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/thenativeweb/get-next-version/util"
+	"github.com/tvcsantos/get-next-version/util"
 )
 
 func TestIsValidVersionPrefix(t *testing.T) {

@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/thenativeweb/get-next-version/conventionalcommits"
+	"github.com/tvcsantos/get-next-version/conventionalcommits"
 )
 
 func TestCommitMessageToType(t *testing.T) {
 	classifier := conventionalcommits.NewTypeClassifier()
-	
+
 	tests := []struct {
 		message            string
 		doExpectError      bool

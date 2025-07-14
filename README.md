@@ -4,7 +4,7 @@ get-next-version gets the next version for your repository according to semantic
 
 ## Installation
 
-Go to the [releases page](https://github.com/thenativeweb/get-next-version/releases), find the download url for your architecture and operating system, and copy it.
+Go to the [releases page](https://github.com/tvcsantos/get-next-version/releases), find the download url for your architecture and operating system, and copy it.
 
 Then, run the following steps:
 
@@ -73,7 +73,7 @@ jobs:
         ref: ${{ github.event.pull_request.head.sha }}
     - name: Get next version
       id: get_next_version
-      uses: thenativeweb/get-next-version@main
+      uses: tvcsantos/get-next-version@main
       with:
         prefix: 'v' # optional, defaults to ''
         # Optional: customize commit prefixes
@@ -137,7 +137,7 @@ When using the GitHub Action, specify custom prefixes as inputs:
 ```yaml
 - name: Get next version
   id: get_next_version
-  uses: thenativeweb/get-next-version@main
+  uses: tvcsantos/get-next-version@main
   with:
     fix_prefixes: 'fix,deps,perf'
     feature_prefixes: 'feat,enhance'

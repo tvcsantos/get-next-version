@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/thenativeweb/get-next-version/version"
+	"github.com/tvcsantos/get-next-version/version"
 )
 
 func init() {

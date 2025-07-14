@@ -5,7 +5,7 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/stretchr/testify/assert"
-	"github.com/thenativeweb/get-next-version/target"
+	"github.com/tvcsantos/get-next-version/target"
 )
 
 func TestFormat(t *testing.T) {

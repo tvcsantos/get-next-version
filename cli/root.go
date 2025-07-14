@@ -8,11 +8,11 @@ import (
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	"github.com/thenativeweb/get-next-version/conventionalcommits"
-	"github.com/thenativeweb/get-next-version/git"
-	"github.com/thenativeweb/get-next-version/target"
-	"github.com/thenativeweb/get-next-version/util"
-	"github.com/thenativeweb/get-next-version/versioning"
+	"github.com/tvcsantos/get-next-version/conventionalcommits"
+	"github.com/tvcsantos/get-next-version/git"
+	"github.com/tvcsantos/get-next-version/target"
+	"github.com/tvcsantos/get-next-version/util"
+	"github.com/tvcsantos/get-next-version/versioning"
 	"golang.org/x/exp/slices"
 )
 

@@ -8,7 +8,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/thenativeweb/get-next-version/conventionalcommits"
+	"github.com/tvcsantos/get-next-version/conventionalcommits"
 )
 
 type ConventionalCommitTypesResult struct {

@@ -10,9 +10,9 @@ import (
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/thenativeweb/get-next-version/conventionalcommits"
-	"github.com/thenativeweb/get-next-version/git"
-	"github.com/thenativeweb/get-next-version/testutil"
+	"github.com/tvcsantos/get-next-version/conventionalcommits"
+	"github.com/tvcsantos/get-next-version/git"
+	"github.com/tvcsantos/get-next-version/testutil"
 )
 
 type commit struct {

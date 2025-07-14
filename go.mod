@@ -1,4 +1,4 @@
-module github.com/thenativeweb/get-next-version
+module github.com/tvcsantos/get-next-version
 
 go 1.24.1
 

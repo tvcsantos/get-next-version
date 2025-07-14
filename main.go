@@ -6,7 +6,7 @@ import (
 	"github.com/mattn/go-isatty"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/thenativeweb/get-next-version/cli"
+	"github.com/tvcsantos/get-next-version/cli"
 )
 
 func main() {

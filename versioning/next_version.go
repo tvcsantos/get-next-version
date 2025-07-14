@@ -2,7 +2,7 @@ package versioning
 
 import (
 	"github.com/Masterminds/semver"
-	"github.com/thenativeweb/get-next-version/conventionalcommits"
+	"github.com/tvcsantos/get-next-version/conventionalcommits"
 )
 
 func CalculateNextVersion(

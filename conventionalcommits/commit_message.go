@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/thenativeweb/get-next-version/util"
+	"github.com/tvcsantos/get-next-version/util"
 )
 
 var (

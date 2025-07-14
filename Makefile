@@ -6,7 +6,7 @@ OPEN := xdg-open
 endif
 
 BINARY_NAME=get-next-version
-MODULE_PATH=github.com/thenativeweb/${BINARY_NAME}
+MODULE_PATH=github.com/tvcsantos/${BINARY_NAME}
 
 COMMON_FLAGS=-ldflags="-X '$(MODULE_PATH)/appversion.AppVersion=$(VERSION)'"
 
