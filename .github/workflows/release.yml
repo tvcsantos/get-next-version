@@ -42,7 +42,8 @@ jobs:
       env:
         NEXT_VERSION: ${{ steps.get_next_version.outputs.version }}
       run: |
-        cat ./action.yml.tpl | sed "s/<docker-image>/docker:\/\/ghcr.io\/${GITHUB_REPOSITORY}:${NEXT_VERSION}/" > ./action.yml
+        escaped_repo=${GITHUB_REPOSITORY//\//\\/}
+        cat ./action.yml.tpl | sed "s/<docker-image>/docker:\/\/ghcr.io\/${escaped_repo}:${NEXT_VERSION}/" > ./action.yml
     - name: Create release commit
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       uses: EndBug/add-and-commit@v9
