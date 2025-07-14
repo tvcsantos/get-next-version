@@ -19,6 +19,18 @@ inputs:
     description: 'Sets custom chore prefixes (comma-separated)'
     required: false
     default: ''
+  tags_filter_regex:
+    description: 'Sets a regex to filter tags'
+    required: false
+    default: ''
+  commits_filter_path_regex:
+    description: 'Sets a regex to filter commits by path'
+    required: false
+    default: ''
+  version_regex:
+    description: 'Sets a regex to extract the version from tags'
+    required: false
+    default: ''
 outputs:
   version:
     description: 'Next version'

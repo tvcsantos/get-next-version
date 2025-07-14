@@ -39,8 +39,10 @@ jobs:
 
     - name: Set new image version in action.yml
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+      env:
+        NEXT_VERSION: ${{ steps.get_next_version.outputs.version }}
       run: |
-        cat ./action.yml.tpl | sed "s/<docker-image>/docker:\/\/ghcr.io\/thenativeweb\/get-next-version:${{ steps.get_next_version.outputs.version }}/" > ./action.yml
+        cat ./action.yml.tpl | sed "s/<docker-image>/docker:\/\/ghcr.io\/${GITHUB_REPOSITORY}:${NEXT_VERSION}/" > ./action.yml
     - name: Create release commit
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       uses: EndBug/add-and-commit@v9
@@ -50,9 +52,9 @@ jobs:
         default_author: github_actions
     - name: Create new version
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+      env:
+        NEXT_VERSION: ${{ steps.get_next_version.outputs.version }}
       run: |
-        NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
-
         git tag $NEXT_VERSION
         git push origin $NEXT_VERSION
     - name: Build artifacts
@@ -76,7 +78,7 @@ jobs:
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       uses: docker/build-push-action@v6
       env:
-          DOCKER_REPOSITORY: ghcr.io/thenativeweb/get-next-version
+          DOCKER_REPOSITORY: ghcr.io/${{ github.repository }}
       with:
         platforms: linux/amd64,linux/arm64
         push: true

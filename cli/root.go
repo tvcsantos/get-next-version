@@ -1,8 +1,9 @@
 package cli
 
 import (
+	"regexp"
 	"strings"
-	
+
 	"github.com/Masterminds/semver"
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/rs/zerolog/log"
@@ -16,12 +17,15 @@ import (
 )
 
 var (
-	rootRepositoryFlag      string
-	rootTargetFlag          string
-	rootPrefixFlag          string
-	rootFeaturePrefixesFlag string
-	rootFixPrefixesFlag     string
-	rootChorePrefixesFlag   string
+	rootRepositoryFlag             string
+	rootTargetFlag                 string
+	rootPrefixFlag                 string
+	rootFeaturePrefixesFlag        string
+	rootFixPrefixesFlag            string
+	rootChorePrefixesFlag          string
+	rootTagsFilterRegexFlag        string
+	rootCommitsFilterPathRegexFlag string
+	rootVersionRegex               string
 )
 
 func init() {
@@ -31,6 +35,9 @@ func init() {
 	RootCommand.Flags().StringVar(&rootFeaturePrefixesFlag, "feature-prefixes", "", "sets custom feature prefixes (comma-separated)")
 	RootCommand.Flags().StringVar(&rootFixPrefixesFlag, "fix-prefixes", "", "sets custom fix prefixes (comma-separated)")
 	RootCommand.Flags().StringVar(&rootChorePrefixesFlag, "chore-prefixes", "", "sets custom chore prefixes (comma-separated)")
+	RootCommand.Flags().StringVarP(&rootTagsFilterRegexFlag, "tags-filter-regex", "f", "", "sets a regex to filter tags")
+	RootCommand.Flags().StringVarP(&rootCommitsFilterPathRegexFlag, "commits-filter-path-regex", "c", "", "sets a regex to filter commits by path")
+	RootCommand.Flags().StringVarP(&rootVersionRegex, "version-regex", "v", "", "sets a regex to extract the version from tags")
 }
 
 var RootCommand = &cobra.Command{
@@ -61,7 +68,28 @@ var RootCommand = &cobra.Command{
 
 		var nextVersion semver.Version
 		var hasNextVersion bool
-		result, err := git.GetConventionalCommitTypesSinceLastRelease(repository, classifier)
+		var versionRegex *regexp.Regexp
+		var commitsFilterPathRegex *regexp.Regexp
+		var tagsFilterRegex *regexp.Regexp
+
+		if rootVersionRegex != "" {
+			versionRegex = regexp.MustCompile(rootVersionRegex)
+		}
+		if rootCommitsFilterPathRegexFlag != "" {
+			commitsFilterPathRegex = regexp.MustCompile(rootCommitsFilterPathRegexFlag)
+		}
+		if rootTagsFilterRegexFlag != "" {
+			tagsFilterRegex = regexp.MustCompile(rootTagsFilterRegexFlag)
+		}
+
+		result, err := git.GetConventionalCommitTypesSinceLastRelease(
+			repository,
+			classifier,
+			commitsFilterPathRegex,
+			tagsFilterRegex,
+			versionRegex,
+		)
+
 		if err != nil {
 			log.Fatal().Msg(err.Error())
 		} else {
@@ -77,19 +105,19 @@ var RootCommand = &cobra.Command{
 
 func createTypeClassifier() *conventionalcommits.TypeClassifier {
 	var choreTypes, fixTypes, featureTypes []string
-	
+
 	if rootChorePrefixesFlag != "" {
 		choreTypes = parseCommaSeparatedPrefixes(rootChorePrefixesFlag)
 	}
-	
+
 	if rootFixPrefixesFlag != "" {
 		fixTypes = parseCommaSeparatedPrefixes(rootFixPrefixesFlag)
 	}
-	
+
 	if rootFeaturePrefixesFlag != "" {
 		featureTypes = parseCommaSeparatedPrefixes(rootFeaturePrefixesFlag)
 	}
-	
+
 	return conventionalcommits.NewTypeClassifierWithCustomPrefixes(choreTypes, fixTypes, featureTypes)
 }
 
@@ -97,7 +125,7 @@ func parseCommaSeparatedPrefixes(input string) []string {
 	if input == "" {
 		return nil
 	}
-	
+
 	var result []string
 	for _, prefix := range strings.Split(input, ",") {
 		trimmed := strings.TrimSpace(prefix)

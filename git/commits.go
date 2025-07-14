@@ -3,6 +3,7 @@ package git
 import (
 	"errors"
 	"io"
+	"regexp"
 
 	"github.com/Masterminds/semver"
 	"github.com/go-git/go-git/v5"
@@ -17,8 +18,14 @@ type ConventionalCommitTypesResult struct {
 
 var ErrNoCommitsFound = errors.New("no commits found")
 
-func GetConventionalCommitTypesSinceLastRelease(repository *git.Repository, classifier *conventionalcommits.TypeClassifier) (ConventionalCommitTypesResult, error) {
-	tags, err := GetAllSemVerTags(repository)
+func GetConventionalCommitTypesSinceLastRelease(
+	repository *git.Repository,
+	classifier *conventionalcommits.TypeClassifier,
+	commitsFilterPathRegex *regexp.Regexp,
+	tagsFilterRegex *regexp.Regexp,
+	versionRegex *regexp.Regexp,
+) (ConventionalCommitTypesResult, error) {
+	tags, err := GetAllSemVerTags(repository, tagsFilterRegex, versionRegex)
 	if err != nil {
 		return ConventionalCommitTypesResult{}, err
 	}
@@ -32,6 +39,12 @@ func GetConventionalCommitTypesSinceLastRelease(repository *git.Repository, clas
 	commitIterator, err := repository.Log(&git.LogOptions{
 		From:  head.Hash(),
 		Order: git.LogOrderCommitterTime,
+		PathFilter: func(path string) bool {
+			if commitsFilterPathRegex == nil {
+				return true
+			}
+			return commitsFilterPathRegex.MatchString(path)
+		},
 	})
 	if err != nil {
 		return ConventionalCommitTypesResult{}, err
