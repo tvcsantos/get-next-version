@@ -50,12 +50,15 @@ build-darwin-arm64: qa clean detect-version
 build-linux-amd64: qa clean detect-version
 	@GOOS=linux GOARCH=amd64 go build $(COMMON_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-linux-amd64
 
+build-linux-arm64: qa clean detect-version
+	@GOOS=linux GOARCH=arm64 go build $(COMMON_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-linux-arm64
+
 build-windows-amd64: qa clean detect-version
 	@GOOS=windows GOARCH=amd64 go build $(COMMON_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-windows-amd64.exe
 
 build: build-auto
 
-build-all: build-darwin-amd64 build-darwin-arm64 build-linux-amd64 build-windows-amd64
+build-all: build-darwin-amd64 build-darwin-arm64 build-linux-amd64 build-linux-arm64 build-windows-amd64
 
 .PHONY: analyze \
 		benchmark \
@@ -65,6 +68,7 @@ build-all: build-darwin-amd64 build-darwin-arm64 build-linux-amd64 build-windows
 		build-darwin-amd64 \
 		build-darwin-arm64 \
 		build-linux-amd64 \
+		build-linux-arm64 \
 		build-windows-amd64 \
 		clean \
 		coverage \
