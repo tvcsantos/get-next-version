@@ -49,11 +49,11 @@ func GetConventionalCommitTypesSinceLastRelease(
 				if regex.Exclude {
 					localMatch = !localMatch
 				}
-				if !localMatch {
-					return false
+				if localMatch {
+					return true
 				}
 			}
-			return true
+			return false
 		},
 	})
 	if err != nil {
