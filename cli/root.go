@@ -24,8 +24,8 @@ var (
 	rootFixPrefixesFlag            string
 	rootChorePrefixesFlag          string
 	rootTagsFilterRegexFlag        string
-	rootCommitsFilterPathRegexFlag string
 	rootVersionRegex               string
+	rootCommitsFilterPathRegexFlag []string
 )
 
 func init() {
@@ -36,7 +36,7 @@ func init() {
 	RootCommand.Flags().StringVar(&rootFixPrefixesFlag, "fix-prefixes", "", "sets custom fix prefixes (comma-separated)")
 	RootCommand.Flags().StringVar(&rootChorePrefixesFlag, "chore-prefixes", "", "sets custom chore prefixes (comma-separated)")
 	RootCommand.Flags().StringVarP(&rootTagsFilterRegexFlag, "tags-filter-regex", "f", "", "sets a regex to filter tags")
-	RootCommand.Flags().StringVarP(&rootCommitsFilterPathRegexFlag, "commits-filter-path-regex", "c", "", "sets a regex to filter commits by path")
+	RootCommand.Flags().StringArrayVarP(&rootCommitsFilterPathRegexFlag, "commits-filter-path-regex", "c", nil, "sets a regex to filter commits by path")
 	RootCommand.Flags().StringVarP(&rootVersionRegex, "version-regex", "v", "", "sets a regex to extract the version from tags")
 }
 
@@ -69,17 +69,29 @@ var RootCommand = &cobra.Command{
 		var nextVersion semver.Version
 		var hasNextVersion bool
 		var versionRegex *regexp.Regexp
-		var commitsFilterPathRegex *regexp.Regexp
+		var commitsFilterPathRegex []util.PathFilterRegex
 		var tagsFilterRegex *regexp.Regexp
 
 		if rootVersionRegex != "" {
-			versionRegex = regexp.MustCompile(rootVersionRegex)
-		}
-		if rootCommitsFilterPathRegexFlag != "" {
-			commitsFilterPathRegex = regexp.MustCompile(rootCommitsFilterPathRegexFlag)
+			versionRegex, err = regexp.Compile(rootVersionRegex)
+			if err != nil {
+				log.Fatal().Err(err).Msgf("invalid version regex: %s", rootVersionRegex)
+			}
 		}
 		if rootTagsFilterRegexFlag != "" {
-			tagsFilterRegex = regexp.MustCompile(rootTagsFilterRegexFlag)
+			tagsFilterRegex, err = regexp.Compile(rootTagsFilterRegexFlag)
+			if err != nil {
+				log.Fatal().Err(err).Msgf("invalid tags filter regex: %s", rootTagsFilterRegexFlag)
+			}
+		}
+		if len(commitsFilterPathRegex) > 0 {
+			commitsFilterPathRegex = make([]util.PathFilterRegex, len(rootCommitsFilterPathRegexFlag))
+			for i, regexStr := range rootCommitsFilterPathRegexFlag {
+				commitsFilterPathRegex[i], err = util.ToPathRegex(regexStr)
+				if err != nil {
+					log.Fatal().Err(err).Msgf("invalid commits filter path regex: %s", regexStr)
+				}
+			}
 		}
 
 		result, err := git.GetConventionalCommitTypesSinceLastRelease(

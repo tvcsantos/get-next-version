@@ -2,6 +2,7 @@ package git
 
 import (
 	"errors"
+	"github.com/tvcsantos/get-next-version/util"
 	"io"
 	"regexp"
 
@@ -21,7 +22,7 @@ var ErrNoCommitsFound = errors.New("no commits found")
 func GetConventionalCommitTypesSinceLastRelease(
 	repository *git.Repository,
 	classifier *conventionalcommits.TypeClassifier,
-	commitsFilterPathRegex *regexp.Regexp,
+	commitsFilterPathRegex []util.PathFilterRegex,
 	tagsFilterRegex *regexp.Regexp,
 	versionRegex *regexp.Regexp,
 ) (ConventionalCommitTypesResult, error) {
@@ -40,10 +41,19 @@ func GetConventionalCommitTypesSinceLastRelease(
 		From:  head.Hash(),
 		Order: git.LogOrderCommitterTime,
 		PathFilter: func(path string) bool {
-			if commitsFilterPathRegex == nil {
+			if len(commitsFilterPathRegex) <= 0 {
 				return true
 			}
-			return commitsFilterPathRegex.MatchString(path)
+			for _, regex := range commitsFilterPathRegex {
+				localMatch := regex.Regex.MatchString(path)
+				if regex.Exclude {
+					localMatch = !localMatch
+				}
+				if !localMatch {
+					return false
+				}
+			}
+			return true
 		},
 	})
 	if err != nil {

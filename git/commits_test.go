@@ -1,6 +1,7 @@
 package git_test
 
 import (
+	"github.com/tvcsantos/get-next-version/util"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -30,7 +31,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 		expectedLastVersion             *semver.Version
 		expectedConventionalCommitTypes []conventionalcommits.Type
 		annotateTags                    bool
-		commitsFilterPathRegex          string
+		commitsFilterPathRegex          []string
 		tagsFilterRegex                 string
 		versionRegex                    string
 	}{
@@ -40,7 +41,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 			expectedLastVersion:             nil,
 			expectedConventionalCommitTypes: []conventionalcommits.Type{},
 			annotateTags:                    false,
-			commitsFilterPathRegex:          "",
+			commitsFilterPathRegex:          nil,
 			tagsFilterRegex:                 "",
 			versionRegex:                    "",
 		},
@@ -52,7 +53,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 			expectedLastVersion:             semver.MustParse("0.0.0"),
 			expectedConventionalCommitTypes: []conventionalcommits.Type{conventionalcommits.Chore},
 			annotateTags:                    false,
-			commitsFilterPathRegex:          "",
+			commitsFilterPathRegex:          nil,
 			tagsFilterRegex:                 "",
 			versionRegex:                    "",
 		},
@@ -65,7 +66,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 			expectedLastVersion:             semver.MustParse("1.0.0"),
 			expectedConventionalCommitTypes: []conventionalcommits.Type{conventionalcommits.Chore},
 			annotateTags:                    false,
-			commitsFilterPathRegex:          "",
+			commitsFilterPathRegex:          nil,
 			tagsFilterRegex:                 "",
 			versionRegex:                    "",
 		},
@@ -77,7 +78,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 			expectedLastVersion:             semver.MustParse("1.0.0"),
 			expectedConventionalCommitTypes: []conventionalcommits.Type{},
 			annotateTags:                    false,
-			commitsFilterPathRegex:          "",
+			commitsFilterPathRegex:          nil,
 			tagsFilterRegex:                 "",
 			versionRegex:                    "",
 		},
@@ -93,7 +94,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 			expectedLastVersion:             semver.MustParse("1.0.0"),
 			expectedConventionalCommitTypes: []conventionalcommits.Type{conventionalcommits.Chore},
 			annotateTags:                    false,
-			commitsFilterPathRegex:          "",
+			commitsFilterPathRegex:          nil,
 			tagsFilterRegex:                 "",
 			versionRegex:                    "",
 		},
@@ -109,7 +110,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 			expectedLastVersion:             semver.MustParse("1.0.0"),
 			expectedConventionalCommitTypes: []conventionalcommits.Type{conventionalcommits.Chore},
 			annotateTags:                    false,
-			commitsFilterPathRegex:          "",
+			commitsFilterPathRegex:          nil,
 			tagsFilterRegex:                 "",
 			versionRegex:                    "",
 		},
@@ -134,7 +135,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 				conventionalcommits.BreakingChange,
 			},
 			annotateTags:           false,
-			commitsFilterPathRegex: "",
+			commitsFilterPathRegex: nil,
 			tagsFilterRegex:        "",
 			versionRegex:           "",
 		},
@@ -147,7 +148,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 			expectedLastVersion:             semver.MustParse("1.0.0"),
 			expectedConventionalCommitTypes: []conventionalcommits.Type{conventionalcommits.Fix},
 			annotateTags:                    true,
-			commitsFilterPathRegex:          "",
+			commitsFilterPathRegex:          nil,
 			tagsFilterRegex:                 "",
 			versionRegex:                    "",
 		},
@@ -173,7 +174,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 				conventionalcommits.BreakingChange,
 			},
 			annotateTags:           false,
-			commitsFilterPathRegex: "",
+			commitsFilterPathRegex: nil,
 			tagsFilterRegex:        "component-.*",
 			versionRegex:           "component-(.*)",
 		},
@@ -196,7 +197,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 				conventionalcommits.BreakingChange,
 			},
 			annotateTags:           false,
-			commitsFilterPathRegex: "",
+			commitsFilterPathRegex: nil,
 			tagsFilterRegex:        "component-.*",
 			versionRegex:           "component-(.*)",
 		},
@@ -245,16 +246,19 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 		}
 
 		var versionRegex *regexp.Regexp
-		var commitsFilterPathRegex *regexp.Regexp
+		var commitsFilterPathRegex []util.PathFilterRegex
 		var tagsFilterRegex *regexp.Regexp
 
 		if test.versionRegex != "" {
 			versionRegex, err = regexp.Compile(test.versionRegex)
 			require.NoError(t, err)
 		}
-		if test.commitsFilterPathRegex != "" {
-			commitsFilterPathRegex, err = regexp.Compile(test.commitsFilterPathRegex)
-			require.NoError(t, err)
+		if test.commitsFilterPathRegex != nil {
+			commitsFilterPathRegex = make([]util.PathFilterRegex, len(test.commitsFilterPathRegex))
+			for i, regexStr := range test.commitsFilterPathRegex {
+				commitsFilterPathRegex[i], err = util.ToPathRegex(regexStr)
+				require.NoError(t, err)
+			}
 		}
 		if test.tagsFilterRegex != "" {
 			tagsFilterRegex, err = regexp.Compile(test.tagsFilterRegex)
