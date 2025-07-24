@@ -272,6 +272,7 @@ func TestGetConventionalCommitTypesSinceLatestRelease(t *testing.T) {
 			commitsFilterPathRegex,
 			tagsFilterRegex,
 			versionRegex,
+			semver.MustParse("0.0.0"),
 		)
 
 		if test.doExpectError {

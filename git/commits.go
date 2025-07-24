@@ -25,6 +25,7 @@ func GetConventionalCommitTypesSinceLastRelease(
 	commitsFilterPathRegex []util.PathFilterRegex,
 	tagsFilterRegex *regexp.Regexp,
 	versionRegex *regexp.Regexp,
+	initialVersion *semver.Version,
 ) (ConventionalCommitTypesResult, error) {
 	tags, err := GetAllSemVerTags(repository, tagsFilterRegex, versionRegex)
 	if err != nil {
@@ -86,7 +87,7 @@ func GetConventionalCommitTypesSinceLastRelease(
 			return ConventionalCommitTypesResult{}, currentCommitErr
 		}
 
-		latestReleaseVersion = semver.MustParse("0.0.0")
+		latestReleaseVersion = initialVersion
 	}
 
 	return ConventionalCommitTypesResult{

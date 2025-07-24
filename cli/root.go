@@ -26,6 +26,7 @@ var (
 	rootTagsFilterRegexFlag        string
 	rootVersionRegex               string
 	rootCommitsFilterPathRegexFlag []string
+	rootInitialVersionFlag         string
 )
 
 func init() {
@@ -38,6 +39,7 @@ func init() {
 	RootCommand.Flags().StringVarP(&rootTagsFilterRegexFlag, "tags-filter-regex", "f", "", "sets a regex to filter tags")
 	RootCommand.Flags().StringArrayVarP(&rootCommitsFilterPathRegexFlag, "commits-filter-path-regex", "c", nil, "sets a regex to filter commits by path")
 	RootCommand.Flags().StringVarP(&rootVersionRegex, "version-regex", "v", "", "sets a regex to extract the version from tags")
+	RootCommand.Flags().StringVarP(&rootInitialVersionFlag, "initial-version", "i", "", "sets the initial version to use if no previous version is found")
 }
 
 var RootCommand = &cobra.Command{
@@ -71,6 +73,7 @@ var RootCommand = &cobra.Command{
 		var versionRegex *regexp.Regexp
 		var commitsFilterPathRegex []util.PathFilterRegex
 		var tagsFilterRegex *regexp.Regexp
+		var initialVersion *semver.Version
 
 		if rootVersionRegex != "" {
 			versionRegex, err = regexp.Compile(rootVersionRegex)
@@ -93,6 +96,14 @@ var RootCommand = &cobra.Command{
 				}
 			}
 		}
+		if rootInitialVersionFlag != "" {
+			initialVersion, err = semver.NewVersion(rootInitialVersionFlag)
+			if err != nil {
+				log.Fatal().Err(err).Msgf("invalid initial version: %s", rootInitialVersionFlag)
+			}
+		} else {
+			initialVersion = semver.MustParse("0.0.0")
+		}
 
 		result, err := git.GetConventionalCommitTypesSinceLastRelease(
 			repository,
@@ -100,6 +111,7 @@ var RootCommand = &cobra.Command{
 			commitsFilterPathRegex,
 			tagsFilterRegex,
 			versionRegex,
+			initialVersion,
 		)
 
 		if err != nil {
