@@ -38,4 +38,4 @@ outputs:
     description: 'Whether there is a next version'
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/tvcsantos/get-next-version:3.0.1'
+  image: 'docker://ghcr.io/tvcsantos/get-next-version:3.1.0'
